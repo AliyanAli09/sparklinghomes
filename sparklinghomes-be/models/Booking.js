@@ -218,7 +218,7 @@ const bookingSchema = new mongoose.Schema({
     amount: {
       type: Number,
       required: true,
-      default: 10000 // $100.00 in cents - standard deposit
+      default: 9700 // $97.00 in cents - standard deposit
     },
     paid: {
       type: Boolean,

@@ -83,7 +83,7 @@ const CreateCleaningBooking = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(prev => prev + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -212,7 +212,7 @@ ${formData.specialRequests || 'None'}
       const bookingId = response.data?.data?.booking?._id || response.data?.data?._id || response.data?._id;
       setCreatedBookingId(bookingId);
       setBookingCreated(true);
-      setCurrentStep(3);
+      setCurrentStep(4);
     } catch (err) {
       console.error('Booking creation error:', err);
       setError(err.response?.data?.message || err.message || 'Failed to create booking. Please try again.');
@@ -228,7 +228,8 @@ ${formData.specialRequests || 'None'}
   const steps = [
     { number: 1, title: 'Contact & Service', icon: FiUser },
     { number: 2, title: 'Property Details', icon: FiHome },
-    { number: 3, title: 'Payment', icon: FiCreditCard }
+    { number: 3, title: 'Review', icon: FiCheck },
+    { number: 4, title: 'Payment', icon: FiCreditCard }
   ];
 
   return (
@@ -693,23 +694,142 @@ ${formData.specialRequests || 'None'}
                   Back
                 </button>
                 <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
+                  onClick={() => {
+                    if (validateStep()) handleNext();
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center"
                 >
-                  {loading ? 'Processing...' : 'Continue to Payment'}
+                  Review Booking
                   <FiCheck className="ml-2" />
                 </button>
               </div>
             </div>
           )}
 
-          {/* Step 3: Payment */}
-          {currentStep === 3 && bookingCreated && (
+          {/* Step 3: Review */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">📋 Review Your Booking</h2>
+                <p className="text-gray-600">Double-check all the details before submitting</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Customer Information */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-900 mb-3">Customer Information</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><span className="font-medium">Name:</span> {formData.fullName}</p>
+                      <p><span className="font-medium">Phone:</span> {formData.phone}</p>
+                      {formData.email && <p><span className="font-medium">Email:</span> {formData.email}</p>}
+                      <p><span className="font-medium">Preferred Contact:</span> {Object.keys(formData.preferredContact).filter(k => formData.preferredContact[k]).join(', ') || 'Any'}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-900 mb-3">Services</h3>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      {Object.keys(formData.cleaningType).filter(k => formData.cleaningType[k]).map((type, index) => {
+                        const typeMap = {
+                          standard: 'Standard Cleaning',
+                          deep: 'Deep Cleaning',
+                          moveInOut: 'Move-In / Move-Out Cleaning',
+                          airbnb: 'Airbnb / Rental Turnover',
+                          postConstruction: 'Post-Construction Cleaning'
+                        };
+                        return <p key={index}>• {typeMap[type]}</p>;
+                      })}
+                      <p className="mt-2"><span className="font-medium">Frequency:</span> {formData.frequency.charAt(0).toUpperCase() + formData.frequency.slice(1)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property & Scheduling */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-900 mb-3">Property Details</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><span className="font-medium">Type:</span> {formData.propertyType.charAt(0).toUpperCase() + formData.propertyType.slice(1)}</p>
+                      {formData.squareFootage && <p><span className="font-medium">Square Footage:</span> {formData.squareFootage} sq ft</p>}
+                      <p><span className="font-medium">Bedrooms:</span> {formData.bedrooms}</p>
+                      <p><span className="font-medium">Bathrooms:</span> {formData.bathrooms}</p>
+                      <p><span className="font-medium">Pets:</span> {formData.hasPets ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-900 mb-3">Scheduling</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><span className="font-medium">Date:</span> {new Date(formData.cleaningDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      <p><span className="font-medium">Time:</span> {formData.timeOfDay.charAt(0).toUpperCase() + formData.timeOfDay.slice(1)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-3">Service Address</h3>
+                <div className="text-sm text-gray-600">
+                  <p>{formData.address.street}{formData.address.apartmentUnit ? `, ${formData.address.apartmentUnit}` : ''}</p>
+                  <p>{formData.address.city}, {formData.address.state} {formData.address.zipCode}</p>
+                  <div className="mt-3 space-y-1">
+                    <p><span className="font-medium">Access Method:</span> {formData.accessMethod === 'home' ? 'Someone home' : formData.accessMethod === 'key' ? 'Key/Code entry' : 'Doorman / front desk'}</p>
+                    <p><span className="font-medium">Parking:</span> {formData.parkingAvailable ? 'Available on-site' : 'Not available'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Special Requests */}
+              {formData.specialRequests && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-gray-900 mb-3">Special Requests</h3>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{formData.specialRequests}</p>
+                </div>
+              )}
+
+              {/* What Happens Next */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <FiCheck className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-800 mb-2">What happens next?</h3>
+                    <ul className="list-disc pl-5 space-y-1 text-sm text-blue-700">
+                      <li>Your booking will be automatically sent to cleaners in your area</li>
+                      <li>You'll receive email confirmation after payment</li>
+                      <li>A professional cleaner will be assigned to your booking</li>
+                      <li>You'll get updates about your scheduled service</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleBack}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
+                >
+                  {loading ? 'Processing...' : 'Continue to Payment'}
+                  <FiCreditCard className="ml-2" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Payment */}
+          {currentStep === 4 && bookingCreated && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">💳 Secure Payment</h2>
-                <p className="text-gray-600">Pay your $100 deposit to confirm your booking</p>
+                <p className="text-gray-600">Pay your $97 deposit to confirm your booking</p>
               </div>
 
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
@@ -724,7 +844,7 @@ ${formData.specialRequests || 'None'}
 
               <PaymentForm
                 bookingId={createdBookingId}
-                amount={10000} // $100.00 deposit
+                amount={9700} // $97.00 deposit
                 onSuccess={handlePaymentSuccess}
                 isGuest={true}
                 guestEmail={formData.email}

@@ -92,9 +92,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <AdminLayout 
-      title="Admin Dashboard" 
-      subtitle={`Welcome back, ${user?.firstName}`}
+    <AdminLayout
+      title="Admin Dashboard"
+      subtitle="Welcome back"
     >
       <div className="max-w-7xl mx-auto">
         {/* Quick Stats */}

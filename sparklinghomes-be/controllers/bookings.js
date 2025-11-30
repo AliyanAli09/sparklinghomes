@@ -71,7 +71,7 @@ export const createBooking = catchAsync(async (req, res) => {
     quote,
     status: 'pending-assignment',
     'jobAssignment.status': 'unassigned',
-    'deposit.amount': quote?.deposit ? quote.deposit * 100 : 10000 // Convert to cents, default $100
+    'deposit.amount': quote?.deposit ? quote.deposit * 100 : 9700 // Convert to cents, default $97
   };
 
   const booking = await Booking.create(bookingData);

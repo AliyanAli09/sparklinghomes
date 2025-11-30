@@ -183,7 +183,7 @@ const Terms = () => {
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Contact Us</h3>
             <div className="bg-gray-50 rounded-xl p-6">
               <p className="text-gray-700">
-                If you have questions about these Terms & Conditions, please email us at: <strong>Support@BookAndMove.com</strong>
+                If you have questions about these Terms & Conditions, please email us at: <strong>marcusbrndn@yahoo.com</strong>
               </p>
             </div>
           </div>
